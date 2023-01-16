@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config();
 
 const contactsRouter = require("./app/routes/contact.route");
 const ApiError = require("./app/api-error");
