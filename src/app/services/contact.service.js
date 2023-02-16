@@ -1,8 +1,8 @@
-const { ObjectId } = require("mongodb");
+const { ObjectId } = require('mongodb');
 
 class ContactService {
     constructor(client) {
-        this.Contact = client.db().collection("contacts");
+        this.Contact = client.db().collection('contacts');
     }
 
     // Định nghĩa các phương thức truy xuất CSDL sử dụng mongodb API
@@ -22,14 +22,17 @@ class ContactService {
     }
 
     // Create new contact
-    async create(payload) {
+    async create(payload, userId) {
         const contact = this.extractContactData(payload);
         const result = await this.Contact.findOneAndUpdate(
             contact,
             {
-                $set: { favorite: contact.favorite === true },
+                $set: {
+                    favorite: contact.favorite === true,
+                    userId,
+                },
             },
-            { returnDocument: "after", upsert: true }
+            { returnDocument: 'after', upsert: true }
         );
         return result.value;
     }
@@ -41,7 +44,7 @@ class ContactService {
 
     async findByName(name) {
         return await this.find({
-            name: { $regex: new RegExp(name), $options: "i" },
+            name: { $regex: new RegExp(name), $options: 'i' },
         });
     }
 
@@ -49,6 +52,21 @@ class ContactService {
         return await this.Contact.findOne({
             _id: ObjectId.isValid(id) ? new ObjectId(id) : null,
         });
+    }
+
+    async findAllByUserId(id) {
+        const cursor = await this.Contact.find({
+            userId: id,
+        });
+        return await cursor.toArray();
+    }
+
+    async findFavoriteByUserId(id) {
+        const cursor = await this.Contact.find({
+            userId: id,
+            favorite: true,
+        });
+        return await cursor.toArray();
     }
 
     async update(id, payload) {
@@ -59,7 +77,7 @@ class ContactService {
         const result = await this.Contact.findOneAndUpdate(
             filter,
             { $set: update },
-            { returnDocument: "after" }
+            { returnDocument: 'after' }
         );
         return result.value;
     }
