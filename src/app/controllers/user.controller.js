@@ -76,8 +76,6 @@ exports.findFavoriteContactsByUserId = async (req, res, next) => {
             req.params.id
         );
 
-        console.log(contacts);
-
         return res.json({ contacts });
     } catch (error) {
         return next(
